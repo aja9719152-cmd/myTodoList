@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="카테고리, 진행률, 검색, 정렬을 지원하는 할 일 관리 앱 (데스크톱 레이아웃)">
+  <title>My Tasks</title>
+  <script>
+    // CSS가 그려지기 전에 테마를 정해서 새로고침 시 화면이 깜빡이지 않도록 함.
+    // 키 이름 'todoTheme'은 script.js의 STORAGE_KEYS.theme과 같아야 함.
+    (function () {
+      var theme;
+      try { theme = localStorage.getItem('todoTheme'); } catch (e) {}
+      if (theme !== 'dark' && theme !== 'light') {
+        theme = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 키보드 사용자를 위한 건너뛰기 링크 (포커스될 때만 보임) -->
+  <a class="skip-link" href="#todo-input">할 일 입력으로 건너뛰기</a>
+
+  <!--
+    레이아웃 (style.css 하단 "데스크톱 레이아웃" 참고)
+    - 1440px 이상: [메뉴] [할 일 목록] [진행 현황] 3단
+    - 1024~1439px: 왼쪽에 메뉴 + 진행 현황, 오른쪽에 할 일 목록
+    - 1024px 미만: 한 장의 카드로 위에서 아래로 (모바일 버전과 같은 형태)
+    요소 id는 루트 버전과 같아야 script.js를 그대로 쓸 수 있다.
+  -->
+  <div class="app">
+    <!-- 메뉴: 제목, 테마, 카테고리 필터, 단축키 -->
+    <aside class="panel panel--nav" aria-label="메뉴">
+      <header class="app__header">
+        <h1 class="app__title">
+          My Tasks
+          <span class="badge" id="remaining-badge">0</span>
+        </h1>
+        <button type="button" class="theme-toggle" id="theme-toggle" role="switch" aria-checked="false" aria-label="다크 모드" title="다크 모드 (Alt+D)">
+          <span class="theme-toggle__thumb" aria-hidden="true"></span>
+        </button>
+      </header>
+
+      <h2 class="panel__heading" id="filter-heading">카테고리</h2>
+      <div class="filter-bar" id="filter-bar" role="group" aria-labelledby="filter-heading">
+        <button type="button" class="filter-btn filter-btn--all" data-filter="all" title="Alt+1">전체</button>
+        <button type="button" class="filter-btn filter-btn--work" data-filter="work" title="Alt+2">업무</button>
+        <button type="button" class="filter-btn filter-btn--personal" data-filter="personal" title="Alt+3">개인</button>
+        <button type="button" class="filter-btn filter-btn--study" data-filter="study" title="Alt+4">공부</button>
+      </div>
+
+      <div class="shortcuts">
+        <h2 class="panel__heading">단축키</h2>
+        <dl class="shortcuts__list">
+          <div><dt><kbd>Alt</kbd>+<kbd>N</kbd></dt><dd>새 할 일</dd></div>
+          <div><dt><kbd>Alt</kbd>+<kbd>1</kbd>~<kbd>4</kbd></dt><dd>필터</dd></div>
+          <div><dt><kbd>Alt</kbd>+<kbd>D</kbd></dt><dd>다크 모드</dd></div>
+          <div><dt><kbd>Ctrl</kbd>+<kbd>Z</kbd></dt><dd>되돌리기</dd></div>
+          <div><dt>더블클릭</dt><dd>수정</dd></div>
+          <div><dt><kbd>⋮⋮</kbd> 끌기 / <kbd>↑</kbd><kbd>↓</kbd></dt><dd>순서 이동</dd></div>
+        </dl>
+      </div>
+    </aside>
+
+    <!-- 진행 현황: 오늘의 격언, 진행률 대시보드 -->
+    <aside class="panel panel--insights" aria-label="진행 현황">
+      <figure class="quote" aria-labelledby="quote-label">
+        <span class="sr-only" id="quote-label">오늘의 격언</span>
+        <blockquote class="quote__text" id="quote-text"></blockquote>
+        <figcaption class="quote__author" id="quote-author"></figcaption>
+        <button type="button" class="icon-btn quote__next" id="quote-next" aria-label="다른 격언 보기" title="다른 격언 보기">🔄</button>
+      </figure>
+
+      <!-- 진행률 대시보드: 필터·검색과 관계없이 전체 할 일 기준 -->
+      <section class="stats" aria-labelledby="stats-heading">
+        <h2 class="sr-only" id="stats-heading">진행률</h2>
+        <div class="stats__overall">
+          <div class="stats__row">
+            <span class="stats__label">전체 진행률</span>
+            <span class="stats__value" id="stats-overall-text">0/0 완료 (0%)</span>
+          </div>
+          <div class="progress" id="stats-overall-progress" role="progressbar"
+               aria-label="전체 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress__fill" id="stats-overall-bar"></div>
+          </div>
+          <p class="stats__cheer" id="cheer-message"></p>
+        </div>
+
+        <div class="stats__categories">
+          <div class="stats-cat stats-cat--work">
+            <div class="stats__row">
+              <span class="stats-cat__name">업무</span>
+              <span class="stats-cat__count" data-count="work">0/0</span>
+            </div>
+            <div class="progress progress--mini" role="progressbar" aria-label="업무 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="progress__fill" data-bar="work"></div>
+            </div>
+          </div>
+          <div class="stats-cat stats-cat--personal">
+            <div class="stats__row">
+              <span class="stats-cat__name">개인</span>
+              <span class="stats-cat__count" data-count="personal">0/0</span>
+            </div>
+            <div class="progress progress--mini" role="progressbar" aria-label="개인 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="progress__fill" data-bar="personal"></div>
+            </div>
+          </div>
+          <div class="stats-cat stats-cat--study">
+            <div class="stats__row">
+              <span class="stats-cat__name">공부</span>
+              <span class="stats-cat__count" data-count="study">0/0</span>
+            </div>
+            <div class="progress progress--mini" role="progressbar" aria-label="공부 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="progress__fill" data-bar="study"></div>
+            </div>
+          </div>
+        </div>
+
+        <p class="stats__today">오늘 추가된 할 일 <strong id="stats-today">0</strong>개</p>
+      </section>
+    </aside>
+
+    <!-- 할 일 목록 -->
+    <main class="panel panel--main">
+      <!-- 입력·검색 영역: 데스크톱에서는 스크롤해도 위에 고정 -->
+      <div class="main__controls">
+        <form class="todo-form" id="todo-form" aria-label="새 할 일 추가">
+          <select id="todo-category" class="todo-form__select" aria-label="카테고리">
+            <option value="work">업무</option>
+            <option value="personal" selected>개인</option>
+            <option value="study">공부</option>
+          </select>
+          <input
+            type="text"
+            id="todo-input"
+            class="todo-form__input"
+            placeholder="할 일을 입력하세요 (Alt+N)"
+            autocomplete="off"
+            maxlength="200"
+            aria-label="새 할 일"
+          >
+          <button type="submit" class="todo-form__button">추가</button>
+        </form>
+
+        <!-- 키워드 자동 분류: 입력 내용에 따라 카테고리를 고르고 결과를 힌트로 보여줌 -->
+        <div class="auto-category">
+          <span class="auto-category__hint" id="auto-category-hint" aria-live="polite"></span>
+          <label class="auto-category__toggle" title="입력한 내용의 키워드로 카테고리를 자동 선택">
+            <input type="checkbox" id="auto-category-toggle" checked>
+            자동 분류
+          </label>
+        </div>
+
+        <div class="toolbar">
+          <div class="search" role="search">
+            <span class="search__icon" aria-hidden="true">🔍</span>
+            <input type="search" id="search-input" class="search__input" placeholder="할 일 검색" autocomplete="off" aria-label="할 일 검색" aria-controls="todo-list">
+          </div>
+          <select id="sort-select" class="sort-select" aria-label="정렬 방식" aria-controls="todo-list">
+            <option value="status">완료 상태순</option>
+            <option value="manual">직접 정렬 (드래그)</option>
+            <option value="newest">최신순</option>
+            <option value="oldest">오래된순</option>
+            <option value="category">카테고리순</option>
+          </select>
+        </div>
+      </div>
+
+      <ul class="todo-list" id="todo-list" aria-label="할 일 목록"></ul>
+      <p class="todo-empty" id="todo-empty" hidden></p>
+
+      <div class="list-actions" role="group" aria-label="목록 작업">
+        <button type="button" class="btn btn--ghost" id="undo-btn" disabled>
+          <span aria-hidden="true">↶</span> 되돌리기
+        </button>
+        <button type="button" class="btn btn--clear" id="clear-completed" disabled>완료 항목 삭제</button>
+        <span class="list-actions__spacer"></span>
+        <button type="button" class="btn btn--ghost" id="export-btn" title="JSON 파일로 저장">
+          <span aria-hidden="true">⬇</span> 내보내기
+        </button>
+        <button type="button" class="btn btn--ghost" id="import-btn" title="JSON 파일에서 불러오기">
+          <span aria-hidden="true">⬆</span> 가져오기
+        </button>
+        <input type="file" id="import-file" accept=".json,application/json" hidden>
+      </div>
+    </main>
+  </div>
+
+  <!-- 화면에는 보이지 않고 스크린 리더에만 읽히는 상태 알림 영역 -->
+  <div class="sr-only" id="sr-status" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- 토스트 알림 (눈에 보이는 피드백, 스크린 리더도 읽음) -->
+  <div class="toast-container" id="toast-container" aria-live="polite" aria-relevant="additions"></div>
+
+  <!-- 범용 확인 대화상자: confirmAction()이 제목·내용·버튼 문구를 채움 -->
+  <dialog class="dialog" id="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+    <form method="dialog">
+      <h2 class="dialog__title" id="confirm-title"></h2>
+      <p class="dialog__message" id="confirm-message"></p>
+      <div class="dialog__actions">
+        <button class="btn btn--ghost" value="cancel">취소</button>
+        <button class="btn btn--primary" id="confirm-ok" value="confirm">확인</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 가져오기 대화상자: 방식(합치기/바꾸기)과 백업 여부 선택 -->
+  <dialog class="dialog" id="import-dialog" aria-labelledby="import-title" aria-describedby="import-summary">
+    <form method="dialog">
+      <h2 class="dialog__title" id="import-title">데이터 가져오기</h2>
+      <p class="dialog__message" id="import-summary"></p>
+      <div id="import-options">
+        <fieldset class="dialog__fieldset">
+          <legend>가져오는 방식</legend>
+          <label class="choice">
+            <input type="radio" name="import-mode" value="merge" checked>
+            <span><strong>합치기</strong> — 지금 목록을 유지하고 새 항목만 추가</span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="import-mode" value="replace">
+            <span><strong>바꾸기</strong> — 지금 목록을 지우고 파일 내용으로 교체</span>
+          </label>
+        </fieldset>
+        <label class="choice">
+          <input type="checkbox" id="import-backup" checked>
+          <span>가져오기 전에 현재 데이터를 백업 파일로 저장</span>
+        </label>
+      </div>
+      <div class="dialog__actions">
+        <button class="btn btn--ghost" value="cancel">취소</button>
+        <button class="btn btn--primary" value="confirm">가져오기</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>

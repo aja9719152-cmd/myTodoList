@@ -1,0 +1,1613 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ---------- 테마 토큰 ---------- */
+
+:root {
+  color-scheme: light;
+  --bg: #f3f4f6;
+  --card: #ffffff;
+  --surface: #f9fafb;
+  --surface-hover: #f3f4f6;
+  --text: #1f2937;
+  --text-secondary: #6b7280;
+  --muted: #9ca3af;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-ring: rgba(79, 70, 229, 0.2);
+  --danger: #dc2626;
+  --danger-strong: #dc2626;
+  --danger-soft: rgba(239, 68, 68, 0.1);
+  --mark-bg: #fef08a;
+  --mark-text: inherit;
+  --toast-bg: #1f2937;
+  --toast-text: #ffffff;
+  --toast-action: #a5b4fc;
+  --radius: 12px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
+
+  --cat-work: #4a90e2;
+  --cat-personal: #27ae60;
+  --cat-study: #8e44ad;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1a1a1a;
+  --card: #2d2d2d;
+  --surface: #333333;
+  --surface-hover: #383838;
+  --text: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --muted: #8c8c8c;
+  --border: #404040;
+  --border-strong: #555555;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-ring: rgba(99, 102, 241, 0.35);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.15);
+  --mark-bg: #854d0e;
+  --mark-text: #fef9c3;
+  --toast-bg: #e0e0e0;
+  --toast-text: #1a1a1a;
+  --toast-action: #4338ca;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* 테마를 바꾸는 동안에만 색 트랜지션 적용 (script.js의 applyTheme) */
+:root.theme-transition,
+:root.theme-transition *,
+:root.theme-transition *::before,
+:root.theme-transition *::after {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease,
+    box-shadow 0.3s ease, fill 0.3s ease !important;
+}
+
+/* ---------- 기본 ---------- */
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 48px 16px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+mark {
+  padding: 0 1px;
+  color: var(--mark-text);
+  background: var(--mark-bg);
+  border-radius: 3px;
+}
+
+kbd {
+  padding: 1px 5px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+}
+
+/* 화면에서는 숨기고 스크린 리더에는 읽히게 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 키보드로 Tab을 처음 누르면 나타나는 건너뛰기 링크 */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 200;
+  padding: 8px 14px;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 8px;
+  transform: translateY(-150%);
+  transition: transform 0.2s;
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/*
+ * 1024px 미만: .app 하나가 카드이고, 그 안의 패널(.panel)은 테두리 없이 위에서 아래로 쌓인다.
+ * 1024px 이상: .app은 그리드가 되고 패널 하나하나가 카드가 된다 (파일 하단 "데스크톱 레이아웃").
+ */
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.panel {
+  min-width: 0;
+}
+
+/* 패널 제목: 좁은 화면에서는 스크린 리더에만, 데스크톱에서는 화면에도 표시 */
+.panel__heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* ---------- 헤더 ---------- */
+
+.app__header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 36px;
+  margin-bottom: 24px;
+}
+
+.app__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 999px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.badge--zero {
+  color: var(--text-secondary);
+  background: var(--border);
+}
+
+.badge.bump {
+  animation: badge-bump 0.3s ease-out;
+}
+
+@keyframes badge-bump {
+  50% { transform: scale(1.25); }
+}
+
+/* 다크 모드 토글 스위치 */
+.theme-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 56px;
+  height: 30px;
+  padding: 0;
+  background: var(--border-strong);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background 0.3s;
+}
+
+/* 터치 영역을 44px 이상으로 확장 */
+.theme-toggle::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}
+
+.theme-toggle:hover {
+  filter: brightness(1.08);
+}
+
+.theme-toggle[aria-checked="true"] {
+  background: var(--primary);
+}
+
+.theme-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  font-size: 13px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+}
+
+.theme-toggle__thumb::before {
+  content: "☀️";
+}
+
+.theme-toggle[aria-checked="true"] .theme-toggle__thumb {
+  background: #1a1a1a;
+  transform: translateX(26px);
+}
+
+.theme-toggle[aria-checked="true"] .theme-toggle__thumb::before {
+  content: "🌙";
+}
+
+/* ---------- 오늘의 격언 ---------- */
+
+.quote {
+  position: relative;
+  margin: 0 0 16px;
+  padding: 12px 48px 12px 16px;
+  border-left: 3px solid var(--primary);
+  border-radius: 0 8px 8px 0;
+  background: var(--surface);
+}
+
+.quote__text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.quote__text.quote-change {
+  animation: todo-fade-in 0.3s ease-out;
+}
+
+.quote__author {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.quote__next {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  font-size: 0.9rem;
+  transform: translateY(-50%);
+}
+
+.quote__next:active {
+  transform: translateY(-50%) scale(0.9);
+}
+
+/* ---------- 진행률 대시보드 ---------- */
+
+.stats {
+  padding: 16px;
+  margin-bottom: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.stats__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.stats__label {
+  font-weight: 600;
+}
+
+.stats__value {
+  font-variant-numeric: tabular-nums;
+}
+
+.stats__cheer {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+:root[data-theme="dark"] .stats__cheer {
+  color: #a5b4fc;
+}
+
+.stats__categories {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stats-cat {
+  font-size: 0.85rem;
+}
+
+.stats-cat__name {
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+.stats-cat__count {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats__today {
+  margin: 16px 0 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.stats__today strong {
+  color: var(--text);
+}
+
+.progress {
+  height: 10px;
+  overflow: hidden;
+  background: var(--border);
+  border-radius: 999px;
+}
+
+.progress--mini {
+  height: 6px;
+}
+
+.progress__fill {
+  width: 0;
+  height: 100%;
+  background: var(--accent, var(--primary));
+  border-radius: inherit;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---------- 카테고리 색 ---------- */
+
+/* 기본값은 반드시 아래 modifier보다 먼저 선언 (같은 명시도라 뒤에 오는 규칙이 이김) */
+.stats-cat,
+.filter-btn,
+.category-tag {
+  --accent: var(--primary);
+}
+
+.stats-cat--work,
+.filter-btn--work,
+.category-tag--work { --accent: var(--cat-work); }
+
+.stats-cat--personal,
+.filter-btn--personal,
+.category-tag--personal { --accent: var(--cat-personal); }
+
+.stats-cat--study,
+.filter-btn--study,
+.category-tag--study { --accent: var(--cat-study); }
+
+/* 글자색으로 쓸 때: 다크 배경에서는 밝게 섞어서 읽기 쉽게 */
+.stats-cat,
+.filter-btn,
+.category-tag {
+  --accent-text: var(--accent);
+}
+
+:root[data-theme="dark"] .stats-cat,
+:root[data-theme="dark"] .filter-btn,
+:root[data-theme="dark"] .category-tag {
+  --accent-text: color-mix(in srgb, var(--accent) 55%, #ffffff);
+}
+
+/* ---------- 필터 버튼 ---------- */
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.filter-btn {
+  flex: 1;
+  min-width: 64px;
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.1s;
+}
+
+.filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.filter-btn:active {
+  transform: scale(0.96);
+}
+
+.filter-btn.active {
+  color: #fff;
+  font-weight: 600;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- 입력 폼 ---------- */
+
+.todo-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.todo-form__input,
+.todo-form__select,
+.search__input,
+.sort-select {
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.todo-form__input:focus,
+.todo-form__select:focus,
+.search__input:focus,
+.sort-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-ring);
+}
+
+.todo-form__input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+}
+
+.todo-form__input.shake {
+  border-color: var(--danger);
+  animation: shake 0.35s ease-in-out;
+}
+
+@keyframes shake {
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.todo-form__select {
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.todo-form__button {
+  padding: 0 20px;
+  font-size: 1rem;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.todo-form__button:hover {
+  background: var(--primary-hover);
+}
+
+.todo-form__button:active {
+  transform: scale(0.97);
+}
+
+/* ---------- 키워드 자동 분류 ---------- */
+
+.auto-category {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin: -4px 0 12px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.auto-category__hint {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.auto-category__suggest {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px 2px 8px;
+  font: inherit;
+  color: var(--text);
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.auto-category__suggest:hover {
+  background: var(--surface-hover);
+  border-color: var(--primary);
+}
+
+.auto-category__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.auto-category__toggle input {
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* 자동으로 카테고리가 바뀌었을 때 드롭다운을 잠깐 강조 */
+.todo-form__select.auto-picked {
+  animation: auto-picked 0.6s ease-out;
+}
+
+@keyframes auto-picked {
+  from {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-ring);
+  }
+}
+
+/* ---------- 검색 · 완료 항목 삭제 ---------- */
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.search {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.search__icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.search__input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px 0 34px;
+}
+
+.sort-select {
+  flex-shrink: 0;
+  height: 40px;
+  padding: 0 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* 목록 아래 작업 버튼들 */
+.list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.list-actions__spacer {
+  flex: 1;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.btn {
+  min-height: 40px;
+  padding: 0 16px;
+  font: inherit;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s, transform 0.1s;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn--ghost {
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+}
+
+.btn--ghost:hover {
+  background: var(--surface-hover);
+}
+
+.btn--primary {
+  color: #fff;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.btn--primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn--danger {
+  color: #fff;
+  background: var(--danger-strong);
+  border: 1px solid var(--danger-strong);
+}
+
+.btn--danger:hover {
+  filter: brightness(1.1);
+}
+
+.btn--clear {
+  flex-shrink: 0;
+  color: var(--danger);
+  background: transparent;
+  border: 1px solid var(--border);
+}
+
+.btn--clear:hover:not(:disabled) {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+
+.btn--clear:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ---------- 할 일 목록 ---------- */
+
+.todo-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.todo-item:hover {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.todo-item__checkbox {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.todo-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-item__text {
+  display: block;
+  word-break: break-word;
+  cursor: text;
+  transition: color 0.2s;
+}
+
+.todo-item.completed .todo-item__text {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.todo-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 0.8rem;
+}
+
+.todo-item__time {
+  color: var(--muted);
+}
+
+.todo-item.completed .category-tag {
+  opacity: 0.5;
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: color 0.2s, background 0.2s, opacity 0.2s, transform 0.1s;
+}
+
+.todo-item:hover .icon-btn,
+.icon-btn:hover,
+.icon-btn:focus-visible {
+  opacity: 1;
+}
+
+.icon-btn:active {
+  transform: scale(0.9);
+}
+
+.todo-item__edit:hover {
+  color: var(--primary);
+  background: var(--primary-ring);
+}
+
+.todo-item__delete:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+/* 드래그 손잡이: '직접 정렬'(.is-manual)일 때만 보임 */
+.todo-item__handle {
+  display: none;
+  width: 24px;
+  margin-left: -6px;
+  font-size: 0.85rem;
+  letter-spacing: -3px;
+  cursor: grab;
+  touch-action: none; /* 터치로 끌 때 화면이 스크롤되지 않도록 */
+}
+
+.todo-list.is-manual .todo-item__handle {
+  display: grid;
+}
+
+.todo-item.dragging {
+  position: relative;
+  z-index: 10;
+  background: var(--card);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-lg);
+  opacity: 0.95;
+  transform: scale(1.02);
+  transition: none;
+}
+
+.todo-list.is-dragging {
+  user-select: none;
+}
+
+.todo-list.is-dragging,
+.todo-list.is-dragging * {
+  cursor: grabbing;
+}
+
+/* 드래그 중에는 다른 항목의 호버 효과를 끔 */
+.todo-list.is-dragging .todo-item:not(.dragging):hover {
+  background: var(--card);
+  border-color: var(--border);
+  transform: none;
+}
+
+/* 카테고리 태그 */
+.category-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-weight: 600;
+  color: var(--accent-text);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border-radius: 999px;
+  transition: opacity 0.2s;
+}
+
+.category-tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* 빈 상태 */
+.todo-empty {
+  margin: 0;
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--text-secondary);
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  animation: todo-fade-in 0.3s ease-out;
+}
+
+.todo-empty::before {
+  content: "📝";
+  display: block;
+  margin-bottom: 8px;
+  font-size: 2rem;
+}
+
+.todo-empty[hidden] {
+  display: none;
+}
+
+/* 단축키 안내: 데스크톱의 왼쪽 메뉴에만 표시 (좁은 화면에서는 각 버튼의 툴팁으로 대신) */
+.shortcuts {
+  display: none;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.shortcuts__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.shortcuts__list > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.shortcuts__list dt {
+  white-space: nowrap;
+}
+
+.shortcuts__list dd {
+  margin: 0;
+  text-align: right;
+  color: var(--muted);
+}
+
+/* ---------- 인라인 편집 ---------- */
+
+.todo-item.editing,
+.todo-item.editing:hover {
+  background: var(--surface);
+  border-color: var(--primary);
+  transform: none;
+}
+
+.todo-edit {
+  display: flex;
+  gap: 6px;
+}
+
+.todo-edit__input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  font: inherit;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-ring);
+}
+
+.todo-edit__select {
+  padding: 0 6px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ---------- 항목 애니메이션 ---------- */
+
+@keyframes todo-fade-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes todo-fade-out {
+  to { opacity: 0; transform: scale(0.96); }
+}
+
+@keyframes todo-slide-out {
+  to { opacity: 0; transform: translateX(32px); }
+}
+
+@keyframes todo-slide-in {
+  from { opacity: 0; transform: translateX(-32px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes todo-flash {
+  from { background: var(--primary-ring); border-color: var(--primary); }
+}
+
+.todo-item.fade-in { animation: todo-fade-in 0.25s ease-out; }
+.todo-item.slide-in { animation: todo-slide-in 0.3s ease-out; }
+.todo-item.flash { animation: todo-flash 0.8s ease-out; }
+.todo-item.fade-out { animation: todo-fade-out 0.25s ease-in forwards; }
+.todo-item.slide-out { animation: todo-slide-out 0.25s ease-in forwards; }
+
+.is-leaving {
+  pointer-events: none;
+}
+
+/* ---------- 토스트 ---------- */
+
+.toast-container {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 16px;
+  font-size: 0.9rem;
+  color: var(--toast-text);
+  background: var(--toast-bg);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  animation: toast-in 0.25s ease-out;
+}
+
+.toast--error {
+  color: #fff;
+  background: var(--danger-strong);
+}
+
+.toast__action {
+  min-height: 32px;
+  padding: 0 8px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--toast-action);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toast__action:hover {
+  text-decoration: underline;
+}
+
+.toast.toast--leaving {
+  animation: toast-out 0.2s ease-in forwards;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+}
+
+@keyframes toast-out {
+  to { opacity: 0; transform: translateY(8px); }
+}
+
+/* ---------- 확인 대화상자 ---------- */
+
+.dialog {
+  width: calc(100% - 32px);
+  max-width: 380px;
+  padding: 24px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+
+.dialog[open] {
+  animation: dialog-in 0.2s ease-out;
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dialog__title {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+
+.dialog__message {
+  margin: 0 0 16px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.dialog__fieldset {
+  margin: 0 0 12px;
+  padding: 0;
+  border: none;
+}
+
+.dialog__fieldset legend {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* 라디오·체크박스 선택지: 줄 전체가 클릭·터치 영역 */
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.choice:hover {
+  background: var(--surface-hover);
+}
+
+.choice:has(input:checked) {
+  border-color: var(--primary);
+}
+
+.choice input {
+  margin-top: 2px;
+  accent-color: var(--primary);
+}
+
+@keyframes dialog-in {
+  from { opacity: 0; transform: scale(0.95); }
+}
+
+/* ---------- 반응형 · 터치 ---------- */
+
+/* 마우스가 없는 기기: 호버로만 보이던 버튼을 항상 표시하고, 단축키 안내는 숨김 */
+@media (hover: none) {
+  .icon-btn {
+    opacity: 1;
+  }
+
+  .todo-item:hover {
+    transform: none;
+  }
+
+  .shortcuts {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 16px 12px;
+  }
+
+  .app {
+    padding: 20px 16px;
+  }
+
+  .app__title {
+    font-size: 1.5rem;
+  }
+
+  .stats {
+    padding: 12px;
+  }
+
+  .stats__categories {
+    gap: 8px;
+  }
+
+  .filter-btn {
+    min-height: 44px;
+    min-width: 0;
+  }
+
+  .todo-form,
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .todo-form__input {
+    flex-basis: 100%;
+    order: -1;
+    min-height: 44px;
+  }
+
+  .todo-form__select {
+    height: 44px;
+  }
+
+  .todo-form__button {
+    flex: 1;
+    height: 44px;
+  }
+
+  .search {
+    flex-basis: 100%;
+  }
+
+  .auto-category__toggle {
+    min-height: 44px;
+  }
+
+  .auto-category__suggest {
+    min-height: 36px;
+  }
+
+  .sort-select {
+    flex: 1;
+    height: 44px;
+  }
+
+  .list-actions .btn {
+    flex: 1 1 calc(50% - 4px);
+  }
+
+  .list-actions__spacer {
+    display: none;
+  }
+
+  .todo-item__handle {
+    width: 32px;
+    margin-left: -8px;
+  }
+
+  .search__input,
+  .btn {
+    min-height: 44px;
+  }
+
+  .btn--clear {
+    flex: 1;
+  }
+
+  .todo-item {
+    gap: 8px;
+    padding: 8px 4px 8px 12px;
+  }
+
+  .todo-item__checkbox {
+    width: 22px;
+    height: 22px;
+  }
+
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* iOS에서 16px보다 작은 입력창은 포커스 시 확대되므로 크기 유지 */
+  .todo-edit {
+    flex-wrap: wrap;
+  }
+
+  .todo-edit__input {
+    flex-basis: 100%;
+    min-height: 40px;
+  }
+
+  .todo-edit__select {
+    min-height: 40px;
+    font-size: 1rem;
+  }
+
+  .dialog__actions .btn {
+    flex: 1;
+  }
+}
+
+/* =============================================================================
+ * 데스크톱 레이아웃 (1024px 이상)
+ *
+ *  1024~1439px                         1440px 이상
+ *  ┌────────┬──────────────────┐       ┌───────┬────────────────────┬─────────┐
+ *  │ 메뉴    │                  │       │ 메뉴   │                    │ 진행 현황 │
+ *  ├────────┤   할 일 목록       │       │ (고정) │     할 일 목록        │ (고정)   │
+ *  │진행 현황 │                  │       │       │                    │         │
+ *  └────────┴──────────────────┘       └───────┴────────────────────┴─────────┘
+ *
+ * 목록은 별도 스크롤 영역을 두지 않고 페이지가 스크롤된다. 드래그 정렬의 자동 스크롤
+ * (script.js의 window.scrollBy)이 그대로 동작하게 하기 위해서다. 대신 입력·검색 영역과
+ * 양옆 패널을 sticky로 화면에 고정해 항상 보이게 한다.
+ * ========================================================================== */
+
+@media (min-width: 1024px) {
+  /* Tab 이동·검색 결과로 스크롤될 때 항목이 고정된 입력 영역(.main__controls) 뒤에 가려지지 않도록 */
+  html {
+    scroll-padding-top: 240px;
+  }
+
+  body {
+    padding: 24px;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "nav      main"
+      "insights main";
+    align-items: start;
+    gap: 24px;
+    max-width: 1680px;
+    min-height: calc(100vh - 48px);
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* 패널 하나하나가 카드 */
+  .panel {
+    padding: 24px;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .panel--nav { grid-area: nav; }
+  .panel--insights { grid-area: insights; }
+
+  .panel__heading {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0 0 10px;
+    overflow: visible;
+    clip: auto;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  /* ---------- 메뉴 패널 ---------- */
+
+  /* 좁은 메뉴 폭에서 제목과 테마 스위치가 붙지 않도록 양 끝 정렬 */
+  .app__header {
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .app__title {
+    font-size: 1.45rem;
+  }
+
+  .theme-toggle {
+    position: relative; /* ::after 터치 영역의 기준점은 유지 */
+    top: auto;
+    flex-shrink: 0;
+    transform: none;
+  }
+
+  /* 필터: 가로 알약 버튼 → 세로 메뉴. 오른쪽에 단축키(title 속성)를 표시 */
+  .filter-bar {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 4px;
+    margin-bottom: 0;
+  }
+
+  .filter-btn {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 42px;
+    padding: 0 14px;
+    text-align: left;
+    border-color: transparent;
+    border-radius: 10px;
+  }
+
+  .filter-btn::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  .filter-btn::after {
+    content: attr(title);
+    margin-left: auto;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  /* :not(.active) — 선택된 버튼의 색이 호버로 덮이지 않게 */
+  .filter-btn:not(.active):hover {
+    background: var(--surface-hover);
+    border-color: transparent;
+  }
+
+  .filter-btn.active::before {
+    background: #fff;
+  }
+
+  .filter-btn.active::after {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .shortcuts {
+    display: block;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ---------- 진행 현황 패널 ---------- */
+
+  /* 패널 자체가 카드이므로 진행률 상자의 배경·테두리는 없앤다 (카드 안의 카드 방지) */
+  .panel--insights .stats {
+    margin-bottom: 0;
+    padding: 4px 0 0;
+    background: none;
+    border: none;
+  }
+
+  .panel--insights .quote {
+    margin-bottom: 24px;
+  }
+
+  /* 좁은 패널 안에서는 카테고리 진행률을 세로로 */
+  .stats__categories {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  /* ---------- 할 일 목록 패널 ---------- */
+
+  .panel--main {
+    grid-area: main;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 48px);
+    padding-top: 0;
+  }
+
+  /* 입력·검색 영역은 스크롤해도 화면 위에 고정 */
+  .main__controls {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    margin: 0 -24px 16px;
+    padding: 24px 24px 4px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .todo-form__input,
+  .todo-form__select,
+  .todo-form__button {
+    min-height: 48px;
+  }
+
+  .todo-form__button {
+    padding: 0 28px;
+  }
+
+  .todo-form__select {
+    min-width: 96px;
+  }
+
+  .toolbar {
+    margin-bottom: 16px;
+  }
+
+  .search__input,
+  .sort-select {
+    height: 42px;
+  }
+
+  .sort-select {
+    min-width: 180px;
+  }
+
+  /* 넓은 화면: 텍스트 | 태그·시간을 한 줄에 */
+  .todo-item {
+    gap: 14px;
+    padding: 12px 16px;
+  }
+
+  .todo-item__body {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .todo-item__text,
+  .todo-edit {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .todo-item__meta {
+    flex-shrink: 0;
+    margin-top: 0;
+  }
+
+  .todo-item__time {
+    min-width: 72px;
+    text-align: right;
+  }
+
+  .todo-empty {
+    padding: 64px 24px;
+    font-size: 1.05rem;
+  }
+
+  .todo-empty::before {
+    font-size: 2.75rem;
+  }
+
+  /* 목록이 짧아도 작업 버튼은 패널 맨 아래에 */
+  .list-actions {
+    margin-top: auto;
+    padding-top: 20px;
+  }
+
+  .todo-list,
+  .todo-empty {
+    margin-bottom: 20px;
+  }
+
+  /* ---------- 화면 고정 요소 ---------- */
+
+  /* 토스트는 오른쪽 아래 (가운데 목록을 가리지 않게) */
+  .toast-container {
+    left: auto;
+    right: 24px;
+    align-items: flex-end;
+    transform: none;
+  }
+}
+
+/* 키보드가 없는 넓은 터치 기기(태블릿 가로 등)에서는 단축키 안내 숨김 */
+@media (min-width: 1024px) and (hover: none) {
+  .shortcuts {
+    display: none;
+  }
+}
+
+/* 1440px 이상: 진행 현황을 오른쪽 열로 빼서 3단, 양옆 패널은 화면에 고정 */
+@media (min-width: 1440px) {
+  .app {
+    grid-template-columns: 260px minmax(0, 1fr) 340px;
+    grid-template-rows: auto;
+    grid-template-areas: "nav main insights";
+  }
+
+  .panel--nav,
+  .panel--insights {
+    position: sticky;
+    top: 24px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+}
+
+/* 아주 넓은 화면: 목록 줄이 너무 길어지지 않도록 가운데 열 폭을 제한 */
+@media (min-width: 1920px) {
+  .app {
+    grid-template-columns: 280px minmax(0, 1100px) 360px;
+    justify-content: center;
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
