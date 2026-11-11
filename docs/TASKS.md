@@ -76,6 +76,11 @@
 - ✅ CLAUDE.md 갱신
 - ✅ PRD / TRD / TASKS 문서 작성
 
+### 단계 9 — 배포
+- ✅ GitHub 공개 저장소 생성: https://github.com/aja9719152-cmd/myTodoList
+- ✅ GitHub Pages 배포 (main 브랜치 루트): https://aja9719152-cmd.github.io/myTodoList/
+- ✅ 대화 내보내기 파일은 `.gitignore`로 제외
+
 ---
 
 ## 2. 확인이 필요한 작업 🔍

@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A vanilla HTML/CSS/JS todo app ("My Tasks") made of three files: `index.html`, `style.css`, `script.js`. There is no build step, package manager, framework, linter or test suite.
 
+Hosted on GitHub Pages from the `main` branch root: repo https://github.com/aja9719152-cmd/myTodoList, site https://aja9719152-cmd.github.io/myTodoList/. Every push to `main` redeploys. The repo is public, and `.gitignore` excludes `/export` conversation logs (`*-command-message*.txt`).
+
 Product and technical docs live in `docs/`: `PRD.md` (features and acceptance criteria), `TRD.md` (design rationale) and `TASKS.md` (done, needs-verification and backlog items). Update `TASKS.md` when finishing or adding work.
 
 ## Running
